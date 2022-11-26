@@ -3379,8 +3379,6 @@ generateTransform(Map transformData) {
   }
 
   if (transformData["postRotation"] != null) {
-    print(
-        "PostRotation: ${transformData["postRotation"]} ${transformData["postRotation"].runtimeType}");
     List<double> array = List<double>.from(transformData["postRotation"]
         .map((e) => MathUtils.degToRad(e) as double)
         .toList());
