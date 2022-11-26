@@ -855,8 +855,6 @@ class FBXTreeParser {
       }
     });
 
-    print("Camera: $cameraAttribute");
-
     if (cameraAttribute == null) {
       model = Object3D();
     } else {
