@@ -1524,7 +1524,7 @@ class GeometryParser {
           }
 
           var wIndex = [0, 0, 0, 0];
-          var w = [0, 0, 0, 0];
+          var w = [0.0, 0.0, 0.0, 0.0];
 
           weights.asMap().forEach((weightIndex, weight) {
             var currentWeight = weight;
