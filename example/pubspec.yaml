@@ -39,6 +39,10 @@ dependencies:
   three_dart_jsm:
     path: ../
 
+dependency_overrides:
+  three_dart:
+    path: ../../three_dart
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

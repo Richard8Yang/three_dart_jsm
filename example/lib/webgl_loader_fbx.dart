@@ -46,7 +46,8 @@ class _MyAppState extends State<WebglLoaderFbx> {
 
   dynamic sourceTexture;
 
-  final GlobalKey<three_jsm.DomLikeListenableState> _globalKey = GlobalKey<three_jsm.DomLikeListenableState>();
+  final GlobalKey<three_jsm.DomLikeListenableState> _globalKey =
+      GlobalKey<three_jsm.DomLikeListenableState>();
 
   late three_jsm.OrbitControls controls;
 
@@ -130,7 +131,8 @@ class _MyAppState extends State<WebglLoaderFbx> {
                       child: Builder(builder: (BuildContext context) {
                         if (kIsWeb) {
                           return three3dRender.isInitialized
-                              ? HtmlElementView(viewType: three3dRender.textureId!.toString())
+                              ? HtmlElementView(
+                                  viewType: three3dRender.textureId!.toString())
                               : Container();
                         } else {
                           return three3dRender.isInitialized
@@ -195,9 +197,13 @@ class _MyAppState extends State<WebglLoaderFbx> {
     renderer!.shadowMap.enabled = true;
 
     if (!kIsWeb) {
-      var pars = three.WebGLRenderTargetOptions(
-          {"minFilter": three.LinearFilter, "magFilter": three.LinearFilter, "format": three.RGBAFormat});
-      renderTarget = three.WebGLRenderTarget((width * dpr).toInt(), (height * dpr).toInt(), pars);
+      var pars = three.WebGLRenderTargetOptions({
+        "minFilter": three.LinearFilter,
+        "magFilter": three.LinearFilter,
+        "format": three.RGBAFormat
+      });
+      renderTarget = three.WebGLRenderTarget(
+          (width * dpr).toInt(), (height * dpr).toInt(), pars);
       renderTarget.samples = 4;
       renderer!.setRenderTarget(renderTarget);
       sourceTexture = renderer!.getRenderTargetGLTexture(renderTarget);
@@ -221,7 +227,8 @@ class _MyAppState extends State<WebglLoaderFbx> {
 
     controls = three_jsm.OrbitControls(camera, _globalKey);
 
-    controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+    controls.enableDamping =
+        true; // an animation loop is required when either damping or auto-rotation are enabled
     controls.dampingFactor = 0.05;
 
     controls.screenSpacePanning = false;
@@ -263,7 +270,9 @@ class _MyAppState extends State<WebglLoaderFbx> {
 
     // model
     var loader = three_jsm.FBXLoader(null, width.toInt(), height.toInt());
-    var object = await loader.loadAsync('assets/models/fbx/Samba Dancing.fbx');
+    //var object = await loader.loadAsync('assets/models/fbx/Samba Dancing.fbx');
+    var object = await loader.loadAsync('assets/models/fbx/Aj.fbx');
+    //var object = await loader.loadAsync('assets/models/fbx/stanford-bunny.fbx');
     // loader.setPath('assets/models/fbx/');
     // var object = await loader.loadAsync( 'model.fbx' );
     mixer = three.AnimationMixer(object);
@@ -280,9 +289,9 @@ class _MyAppState extends State<WebglLoaderFbx> {
 
     render();
 
-    // Future.delayed(Duration(milliseconds: 40), () {
-    //   animate();
-    // });
+    Future.delayed(const Duration(milliseconds: 40), () {
+      animate();
+    });
   }
 
   @override
