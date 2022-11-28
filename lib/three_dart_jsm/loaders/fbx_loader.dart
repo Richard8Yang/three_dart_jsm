@@ -357,6 +357,7 @@ class FBXTreeParser {
           'FBXLoader: PSD textures are not supported, creating placeholder texture for ${textureNode["RelativeFilename"]}');
       texture = Texture();
     } else {
+      textureLoader.flipY = true;
       texture = await textureLoader.loadAsync(fileName);
     }
 
