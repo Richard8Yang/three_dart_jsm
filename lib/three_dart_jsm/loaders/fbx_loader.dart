@@ -183,7 +183,8 @@ class FBXTreeParser {
 
         images[id] = videoNode["RelativeFilename"] ?? videoNode["Filename"];
 
-        final content = videoNode["Content"]["a"] ?? videoNode["Content"];
+        var content = videoNode["Content"];
+        if (content != null) content = content["a"];
 
         // raw image data is in videoNode.Content
         if (content != null) {
@@ -251,9 +252,16 @@ class FBXTreeParser {
         return;
     }
 
+    /*
+    final imageName =
+        fileName.substring(fileName.lastIndexOf('/') + 1).toLowerCase();
+    File(imageName).create().then((file) {
+      file.writeAsBytes(List<int>.from(content));
+    });
+    */
+
     if (content is String) {
       // ASCII format
-
       return 'data:$type;base64,$content';
     } else {
       // Binary Format
@@ -430,8 +438,8 @@ class FBXTreeParser {
         (materialNode["DiffuseColor"]["type"] == 'Color' ||
             materialNode["DiffuseColor"]["type"] == 'ColorRGB')) {
       // The blender exporter exports diffuse here instead of in materialNode.Diffuse
-      parameters["color"] =
-          Color().fromArray(materialNode["DiffuseColor"]["value"]);
+      parameters["color"] = Color()
+          .fromArray(List<double>.from(materialNode["DiffuseColor"]["value"]));
     }
 
     if (materialNode["DisplacementFactor"] != null) {
@@ -460,7 +468,7 @@ class FBXTreeParser {
           parseFloat(materialNode["Opacity"]["value"].toString());
     }
 
-    if (parameters["opacity"] < 1.0) {
+    if (parameters["opacity"] != null && parameters["opacity"] < 1.0) {
       parameters["transparent"] = true;
     }
 
@@ -478,8 +486,8 @@ class FBXTreeParser {
     } else if (materialNode["SpecularColor"] != null &&
         materialNode["SpecularColor"]["type"] == 'Color') {
       // The blender exporter exports specular color here instead of in materialNode.Specular
-      parameters["specular"] =
-          Color().fromArray(materialNode["SpecularColor"]["value"]);
+      parameters["specular"] = Color()
+          .fromArray(List<double>.from(materialNode["SpecularColor"]["value"]));
     }
 
     var scope = this;
@@ -3297,11 +3305,10 @@ convertFBXTimeToSeconds(time) {
   return time / 46186158000;
 }
 
-var dataArray = [];
-
 // extracts the data from the correct position in the FBX array based on indexing type
 getData(polygonVertexIndex, polygonIndex, vertexIndex, infoObject) {
   var index;
+  var dataArray = [];
 
   switch (infoObject["mappingType"]) {
     case 'ByPolygonVertex':
