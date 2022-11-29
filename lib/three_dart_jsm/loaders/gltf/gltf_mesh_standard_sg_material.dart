@@ -10,15 +10,23 @@ import 'package:three_dart/three_dart.dart';
 
 class GLTFMeshStandardSGMaterial extends MeshStandardMaterial {
   bool isGLTFSpecularGlossinessMaterial = true;
+  double? glossiness;
+  Texture? glossinessMap;
 
   GLTFMeshStandardSGMaterial(params) : super(params) {
     type = "GLTFSpecularGlossinessMaterial";
     //various chunks that need replacing
-    var specularMapParsFragmentChunk =
-        ['#ifdef USE_SPECULARMAP', '	uniform sampler2D specularMap;', '#endif'].join('\n');
+    var specularMapParsFragmentChunk = [
+      '#ifdef USE_SPECULARMAP',
+      '	uniform sampler2D specularMap;',
+      '#endif'
+    ].join('\n');
 
-    var glossinessMapParsFragmentChunk =
-        ['#ifdef USE_GLOSSINESSMAP', '	uniform sampler2D glossinessMap;', '#endif'].join('\n');
+    var glossinessMapParsFragmentChunk = [
+      '#ifdef USE_GLOSSINESSMAP',
+      '	uniform sampler2D glossinessMap;',
+      '#endif'
+    ].join('\n');
 
     var specularMapFragmentChunk = [
       'vec3 specularFactor = specular;',
@@ -49,26 +57,43 @@ class GLTFMeshStandardSGMaterial extends MeshStandardMaterial {
       'material.specularColor = specularFactor;',
     ].join('\n');
 
-    uniforms = {
-      "specular": {"value": Color.fromHex(0xffffff)},
-      "glossiness": {"value": 1},
-      "specularMap": {"value": null},
-      "glossinessMap": {"value": null}
-    };
-
     onBeforeCompile = (shader) {
-      uniforms.forEach((uniformName, _) {
-        shader.uniforms[uniformName] = uniforms[uniformName];
-      });
+      shader.uniforms["specular"] =
+          (specular != null) ? specular : Color.fromHex(0xffffff);
+      shader.uniforms["specular"] = (glossiness != null) ? glossiness : 1;
+      if (specularMap != null) {
+        // USE_UV is set by the renderer for specular maps
+        defines!["USE_SPECULARMAP"] = '';
+        shader.uniforms["specularMap"] = specularMap;
+      } else {
+        // delete this.defines.USE_SPECULARMAP;
+        defines!.remove("USE_SPECULARMAP");
+        shader.uniforms["specularMap"] = null;
+      }
+      if (glossinessMap != null) {
+        defines!["USE_GLOSSINESSMAP"] = '';
+        defines!["USE_UV"] = '';
+        shader.uniforms["glossinessMap"] = glossinessMap;
+      } else {
+        // delete this.defines.USE_GLOSSINESSMAP;
+        // delete this.defines.USE_UV;
+        defines!.remove("USE_GLOSSINESSMAP");
+        defines!.remove("USE_UV");
+        shader.uniforms["glossinessMap"] = null;
+      }
 
       shader.fragmentShader = shader.fragmentShader
           .replace('uniform float roughness;', 'uniform vec3 specular;')
           .replace('uniform float metalness;', 'uniform float glossiness;')
-          .replace('#include <roughnessmap_pars_fragment>', specularMapParsFragmentChunk)
-          .replace('#include <metalnessmap_pars_fragment>', glossinessMapParsFragmentChunk)
+          .replace('#include <roughnessmap_pars_fragment>',
+              specularMapParsFragmentChunk)
+          .replace('#include <metalnessmap_pars_fragment>',
+              glossinessMapParsFragmentChunk)
           .replace('#include <roughnessmap_fragment>', specularMapFragmentChunk)
-          .replace('#include <metalnessmap_fragment>', glossinessMapFragmentChunk)
-          .replace('#include <lights_physical_fragment>', lightPhysicalFragmentChunk);
+          .replace(
+              '#include <metalnessmap_fragment>', glossinessMapFragmentChunk)
+          .replace('#include <lights_physical_fragment>',
+              lightPhysicalFragmentChunk);
     };
 
     // delete this.metalness;
@@ -80,46 +105,13 @@ class GLTFMeshStandardSGMaterial extends MeshStandardMaterial {
   }
 
   @override
-  get specular => uniforms["specular"]["value"];
-
-  @override
-  set specular(v) {
-    uniforms["specular"]["value"] = v;
-  }
-
-  @override
-  get specularMap => uniforms["specularMap"]["value"];
-  @override
-  set specularMap(v) {
-    uniforms["specularMap"]["value"] = v;
-
-    if (v != null) {
-      defines!["USE_SPECULARMAP"] = ''; // USE_UV is set by the renderer for specular maps
-
+  void setValue(String key, newValue) {
+    if (key == "glossiness") {
+      glossiness = newValue;
+    } else if (key == "glossinessMap") {
+      glossinessMap = newValue;
     } else {
-      // delete this.defines.USE_SPECULARMAP;
-      defines!.remove("USE_SPECULARMAP");
-    }
-  }
-
-  get glossiness => uniforms["glossiness"]["value"];
-
-  set glossiness(v) {
-    uniforms["glossiness"]["value"] = v;
-  }
-
-  get glossinessMap => uniforms["glossinessMap"]["value"];
-  set glossinessMap(v) {
-    uniforms["glossinessMap"]["value"] = v;
-
-    if (v != null) {
-      defines!["USE_GLOSSINESSMAP"] = '';
-      defines!["USE_UV"] = '';
-    } else {
-      // delete this.defines.USE_GLOSSINESSMAP;
-      // delete this.defines.USE_UV;
-      defines!.remove("USE_GLOSSINESSMAP");
-      defines!.remove("USE_UV");
+      super.setValue(key, newValue);
     }
   }
 

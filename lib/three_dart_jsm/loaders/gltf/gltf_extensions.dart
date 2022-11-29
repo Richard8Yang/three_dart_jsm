@@ -14,7 +14,8 @@ Map<String, String> gltfExtensions = {
   "KHR_LIGHTS_PUNCTUAL": 'KHR_lights_punctual',
   "KHR_MATERIALS_CLEARCOAT": 'KHR_materials_clearcoat',
   "KHR_MATERIALS_IOR": 'KHR_materials_ior',
-  "KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS": 'KHR_materials_pbrSpecularGlossiness',
+  "KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS":
+      'KHR_materials_pbrSpecularGlossiness',
   "KHR_MATERIALS_SHEEN": 'KHR_materials_sheen',
   "KHR_MATERIALS_SPECULAR": 'KHR_materials_specular',
   "KHR_MATERIALS_TRANSMISSION": 'KHR_materials_transmission',
@@ -53,7 +54,8 @@ class GLTFMaterialsSpecularExtension extends GLTFExtension {
       var parser = this.parser;
       var materialDef = parser.json["materials"][materialIndex];
 
-      if (materialDef["extensions"] == null || materialDef["extensions"][name] == null) return null;
+      if (materialDef["extensions"] == null ||
+          materialDef["extensions"][name] == null) return null;
 
       return MeshPhysicalMaterial;
     };
@@ -62,7 +64,8 @@ class GLTFMaterialsSpecularExtension extends GLTFExtension {
       var parser = this.parser;
       var materialDef = parser.json["materials"][materialIndex];
 
-      if (materialDef["extensions"] == null || materialDef["extensions"][name] == null) {
+      if (materialDef["extensions"] == null ||
+          materialDef["extensions"][name] == null) {
         return null;
       }
 
@@ -73,15 +76,17 @@ class GLTFMaterialsSpecularExtension extends GLTFExtension {
       materialParams.specularIntensity = extension.specularFactor ?? 1.0;
 
       if (extension.specularTexture != null) {
-        pending.add(parser.assignTexture(materialParams, 'specularIntensityMap', extension.specularTexture));
+        pending.add(parser.assignTexture(
+            materialParams, 'specularIntensityMap', extension.specularTexture));
       }
 
       var colorArray = extension.specularColorFactor ?? [1, 1, 1];
-      materialParams.specularColor = Color(colorArray[0], colorArray[1], colorArray[2]);
+      materialParams.specularColor =
+          Color(colorArray[0], colorArray[1], colorArray[2]);
 
       if (extension.specularColorTexture != null) {
-        var texture = await parser.assignTexture(
-            materialParams, 'specularColorMap', extension.specularColorTexture, sRGBEncoding);
+        var texture = await parser.assignTexture(materialParams,
+            'specularColorMap', extension.specularColorTexture, sRGBEncoding);
         pending.add(texture);
       }
 
@@ -128,7 +133,8 @@ class GLTFLightsExtension extends GLTFExtension {
 
       // var lightDef = ( nodeDef.extensions && nodeDef.extensions[ this.name ] ) ?? {};
       var lightDef = {};
-      if (nodeDef["extensions"] != null && nodeDef["extensions"][name] != null) {
+      if (nodeDef["extensions"] != null &&
+          nodeDef["extensions"][name] != null) {
         lightDef = nodeDef["extensions"][name];
       }
 
@@ -182,10 +188,14 @@ class GLTFLightsExtension extends GLTFExtension {
         lightNode.distance = range;
         // Handle spotlight properties.
         lightDef["spot"] = lightDef["spot"] ?? {};
-        lightDef["spot"]["innerConeAngle"] = lightDef["spot"]["innerConeAngle"] ?? 0;
-        lightDef["spot"]["outerConeAngle"] = lightDef["spot"]["outerConeAngle"] ?? Math.pi / 4.0;
+        lightDef["spot"]["innerConeAngle"] =
+            lightDef["spot"]["innerConeAngle"] ?? 0;
+        lightDef["spot"]["outerConeAngle"] =
+            lightDef["spot"]["outerConeAngle"] ?? Math.pi / 4.0;
         lightNode.angle = lightDef["spot"]["outerConeAngle"];
-        lightNode.penumbra = 1.0 - lightDef["spot"]["innerConeAngle"] / lightDef["spot"]["outerConeAngle"];
+        lightNode.penumbra = 1.0 -
+            lightDef["spot"]["innerConeAngle"] /
+                lightDef["spot"]["outerConeAngle"];
         lightNode.target.position.set(0, 0, -1);
         lightNode.add(lightNode.target);
         break;
@@ -200,9 +210,11 @@ class GLTFLightsExtension extends GLTFExtension {
 
     lightNode.decay = 2;
 
-    if (lightDef["intensity"] != null) lightNode.intensity = lightDef["intensity"];
+    if (lightDef["intensity"] != null)
+      lightNode.intensity = lightDef["intensity"];
 
-    lightNode.name = parser.createUniqueName(lightDef["name"] ?? 'light_$lightIndex');
+    lightNode.name =
+        parser.createUniqueName(lightDef["name"] ?? 'light_$lightIndex');
 
     // dependency = Promise.resolve( lightNode );
     dependency = lightNode;
@@ -224,23 +236,29 @@ class GLTFMaterialsUnlitExtension extends GLTFExtension {
     };
   }
 
-  extendParams(Map<String, dynamic> materialParams, Map<String, dynamic> materialDef, parser) async {
+  extendParams(Map<String, dynamic> materialParams,
+      Map<String, dynamic> materialDef, parser) async {
     List<Future> pending = [];
 
     materialParams["color"] = Color(1.0, 1.0, 1.0);
     materialParams["opacity"] = 1.0;
 
-    Map<String, dynamic> metallicRoughness = materialDef["pbrMetallicRoughness"];
+    Map<String, dynamic> metallicRoughness =
+        materialDef["pbrMetallicRoughness"];
 
     if (metallicRoughness["baseColorFactor"] is List) {
-      List<double> array = List<double>.from(metallicRoughness["baseColorFactor"].map((e) => e.toDouble()).toList());
+      List<double> array = List<double>.from(
+          metallicRoughness["baseColorFactor"]
+              .map((e) => e.toDouble())
+              .toList());
 
       materialParams["color"].fromArray(array);
       materialParams["opacity"] = array[3];
     }
 
     if (metallicRoughness["baseColorTexture"] != null) {
-      pending.add(parser.assignTexture(materialParams, 'map', metallicRoughness["baseColorTexture"]));
+      pending.add(parser.assignTexture(
+          materialParams, 'map', metallicRoughness["baseColorTexture"]));
     }
 
     return Future.wait(pending);
@@ -260,16 +278,19 @@ class GLTFMaterialsClearcoatExtension extends GLTFExtension {
       var parser = this.parser;
       var materialDef = parser.json["materials"][materialIndex];
 
-      if (materialDef["extensions"] == null || materialDef["extensions"][name]) return null;
+      if (materialDef["extensions"] == null || materialDef["extensions"][name])
+        return null;
 
       return MeshPhysicalMaterial;
     };
 
     extendMaterialParams = (materialIndex, materialParams) async {
       var parser = this.parser;
-      Map<String, dynamic> materialDef = parser.json["materials"][materialIndex];
+      Map<String, dynamic> materialDef =
+          parser.json["materials"][materialIndex];
 
-      if (materialDef["extensions"] == null || materialDef["extensions"][name] == null) {
+      if (materialDef["extensions"] == null ||
+          materialDef["extensions"][name] == null) {
         return null;
       }
 
@@ -282,7 +303,8 @@ class GLTFMaterialsClearcoatExtension extends GLTFExtension {
       }
 
       if (exten["clearcoatTexture"] != null) {
-        pending.add(parser.assignTexture(materialParams, 'clearcoatMap', exten["clearcoatTexture"]));
+        pending.add(parser.assignTexture(
+            materialParams, 'clearcoatMap', exten["clearcoatTexture"]));
       }
 
       if (exten["clearcoatRoughnessFactor"] != null) {
@@ -290,11 +312,13 @@ class GLTFMaterialsClearcoatExtension extends GLTFExtension {
       }
 
       if (exten["clearcoatRoughnessTexture"] != null) {
-        pending.add(parser.assignTexture(materialParams, 'clearcoatRoughnessMap', exten["clearcoatRoughnessTexture"]));
+        pending.add(parser.assignTexture(materialParams,
+            'clearcoatRoughnessMap', exten["clearcoatRoughnessTexture"]));
       }
 
       if (exten["clearcoatNormalTexture"] != null) {
-        pending.add(parser.assignTexture(materialParams, 'clearcoatNormalMap', exten["clearcoatNormalTexture"]));
+        pending.add(parser.assignTexture(materialParams, 'clearcoatNormalMap',
+            exten["clearcoatNormalTexture"]));
 
         if (exten["clearcoatNormalTexture"]["scale"] != null) {
           var scale = exten["clearcoatNormalTexture"]["scale"];
@@ -321,7 +345,8 @@ class GLTFMaterialsSheenExtension extends GLTFExtension {
       var parser = this.parser;
       var materialDef = parser.json["materials"][materialIndex];
 
-      if (materialDef["extensions"] == null || materialDef["extensions"][name] == null) return null;
+      if (materialDef["extensions"] == null ||
+          materialDef["extensions"][name] == null) return null;
 
       return MeshPhysicalMaterial;
     };
@@ -330,7 +355,8 @@ class GLTFMaterialsSheenExtension extends GLTFExtension {
       var parser = this.parser;
       var materialDef = parser.json["materials"][materialIndex];
 
-      if (materialDef["extensions"] == null || materialDef["extensions"][name] == null) {
+      if (materialDef["extensions"] == null ||
+          materialDef["extensions"][name] == null) {
         return null;
       }
 
@@ -351,12 +377,13 @@ class GLTFMaterialsSheenExtension extends GLTFExtension {
       }
 
       if (extension["sheenColorTexture"] != null) {
-        pending
-            .add(parser.assignTexture(materialParams, 'sheenColorMap', extension["sheenColorTexture"], sRGBEncoding));
+        pending.add(parser.assignTexture(materialParams, 'sheenColorMap',
+            extension["sheenColorTexture"], sRGBEncoding));
       }
 
       if (extension["sheenRoughnessTexture"] != null) {
-        pending.add(parser.assignTexture(materialParams, 'sheenRoughnessMap', extension["sheenRoughnessTexture"]));
+        pending.add(parser.assignTexture(materialParams, 'sheenRoughnessMap',
+            extension["sheenRoughnessTexture"]));
       }
 
       return Future.wait(pending);
@@ -376,18 +403,22 @@ class GLTFMaterialsTransmissionExtension extends GLTFExtension {
 
     getMaterialType = (materialIndex) {
       var parser = this.parser;
-      Map<String, dynamic> materialDef = parser.json["materials"][materialIndex];
+      Map<String, dynamic> materialDef =
+          parser.json["materials"][materialIndex];
 
-      if (materialDef["extensions"] == null || materialDef["extensions"][name] == null) return null;
+      if (materialDef["extensions"] == null ||
+          materialDef["extensions"][name] == null) return null;
 
       return MeshPhysicalMaterial;
     };
 
     extendMaterialParams = (materialIndex, materialParams) async {
       var parser = this.parser;
-      Map<String, dynamic> materialDef = parser.json["materials"][materialIndex];
+      Map<String, dynamic> materialDef =
+          parser.json["materials"][materialIndex];
 
-      if (materialDef["extensions"] == null || materialDef["extensions"][name] == null) {
+      if (materialDef["extensions"] == null ||
+          materialDef["extensions"][name] == null) {
         return null;
       }
 
@@ -400,7 +431,8 @@ class GLTFMaterialsTransmissionExtension extends GLTFExtension {
       }
 
       if (exten["transmissionTexture"] != null) {
-        pending.add(parser.assignTexture(materialParams, 'transmissionMap', exten["transmissionTexture"]));
+        pending.add(parser.assignTexture(
+            materialParams, 'transmissionMap', exten["transmissionTexture"]));
       }
 
       return Future.wait(pending);
@@ -421,7 +453,8 @@ class GLTFMaterialsIorExtension extends GLTFExtension {
       var parser = this.parser;
       var materialDef = parser.json["materials"][materialIndex];
 
-      if (materialDef["extensions"] == null || materialDef["extensions"][name] == null) return null;
+      if (materialDef["extensions"] == null ||
+          materialDef["extensions"][name] == null) return null;
 
       return MeshPhysicalMaterial;
     };
@@ -430,7 +463,8 @@ class GLTFMaterialsIorExtension extends GLTFExtension {
       var parser = this.parser;
       var materialDef = parser.json["materials"][materialIndex];
 
-      if (materialDef["extensions"] == null || materialDef["extensions"][name] == null) {
+      if (materialDef["extensions"] == null ||
+          materialDef["extensions"][name] == null) {
         return null;
       }
 
@@ -456,7 +490,8 @@ class GLTFMaterialsVolumeExtension extends GLTFExtension {
       var parser = this.parser;
       var materialDef = parser.json["materials"][materialIndex];
 
-      if (materialDef["extensions"] == null || materialDef["extensions"][name] == null) return null;
+      if (materialDef["extensions"] == null ||
+          materialDef["extensions"][name] == null) return null;
 
       return MeshPhysicalMaterial;
     };
@@ -465,7 +500,8 @@ class GLTFMaterialsVolumeExtension extends GLTFExtension {
       var parser = this.parser;
       var materialDef = parser.json["materials"][materialIndex];
 
-      if (materialDef["extensions"] == null || materialDef["extensions"][name] == null) {
+      if (materialDef["extensions"] == null ||
+          materialDef["extensions"][name] == null) {
         return null;
       }
 
@@ -476,13 +512,15 @@ class GLTFMaterialsVolumeExtension extends GLTFExtension {
       materialParams.thickness = extension.thicknessFactor ?? 0;
 
       if (extension.thicknessTexture != null) {
-        pending.add(parser.assignTexture(materialParams, 'thicknessMap', extension.thicknessTexture));
+        pending.add(parser.assignTexture(
+            materialParams, 'thicknessMap', extension.thicknessTexture));
       }
 
       materialParams.attenuationDistance = extension.attenuationDistance ?? 0;
 
       var colorArray = extension.attenuationColor ?? [1, 1, 1];
-      materialParams.attenuationColor = Color(colorArray[0], colorArray[1], colorArray[2]);
+      materialParams.attenuationColor =
+          Color(colorArray[0], colorArray[1], colorArray[2]);
 
       return await Future.wait(pending);
     };
@@ -506,7 +544,8 @@ class GLTFTextureBasisUExtension extends GLTFExtension {
 
     Map<String, dynamic> textureDef = json["textures"][textureIndex];
 
-    if (textureDef["extensions"] == null || textureDef["extensions"][name] == null) {
+    if (textureDef["extensions"] == null ||
+        textureDef["extensions"][name] == null) {
       return null;
     }
 
@@ -514,7 +553,9 @@ class GLTFTextureBasisUExtension extends GLTFExtension {
     var loader = parser.options["ktx2Loader"];
 
     if (loader == null) {
-      if (json["extensionsRequired"] != null && json["extensionsRequired"].indexOf(name) >= 0) {
+      if (json["extensionsRequired"] != null &&
+          json["extensionsRequired"].indexOf(name) >= 0) {
+        print("parser=$parser name=$name");
         throw ('THREE.GLTFLoader: setKTX2Loader must be called before loading KTX2 textures');
       } else {
         // Assumes that the extension is optional and that a fallback texture is present
@@ -548,19 +589,24 @@ class GLTFTextureWebPExtension extends GLTFExtension {
 
     Map<String, dynamic> textureDef = json["textures"][textureIndex];
 
-    if (textureDef["extensions"] == null || textureDef["extensions"][name] == null) {
+    if (textureDef["extensions"] == null ||
+        textureDef["extensions"][name] == null) {
       return null;
     }
 
     var exten = textureDef["extensions"][name];
     var source = json["images"][exten["source"]];
-    var loader = source.uri ? parser.options.manager.getHandler(source.uri) : parser.textureLoader;
+    var loader = source.uri
+        ? parser.options.manager.getHandler(source.uri)
+        : parser.textureLoader;
 
     final isSupported = detectSupport();
 
-    if (isSupported) return parser.loadTextureImage(textureIndex, source, loader);
+    if (isSupported)
+      return parser.loadTextureImage(textureIndex, source, loader);
 
-    if (json["extensionsRequired"] != null && json["extensionsRequired"].indexOf(name) >= 0) {
+    if (json["extensionsRequired"] != null &&
+        json["extensionsRequired"].indexOf(name) >= 0) {
       throw ('THREE.GLTFLoader: WebP required by asset but unsupported.');
     }
 
@@ -599,14 +645,16 @@ class GLTFMeshoptCompression extends GLTFExtension {
       Map<String, dynamic> json = parser.json;
       Map<String, dynamic> bufferView = json["bufferViews"][index];
 
-      if (bufferView["extensions"] != null && bufferView["extensions"][name] != null) {
+      if (bufferView["extensions"] != null &&
+          bufferView["extensions"][name] != null) {
         var extensionDef = bufferView["extensions"][name];
 
         var buffer = await parser.getDependency('buffer', extensionDef.buffer);
         var decoder = parser.options.meshoptDecoder;
 
         if (!decoder || !decoder.supported) {
-          if (json["extensionsRequired"] != null && json["extensionsRequired"].indexOf(name) >= 0) {
+          if (json["extensionsRequired"] != null &&
+              json["extensionsRequired"].indexOf(name) >= 0) {
             throw ('THREE.GLTFLoader: setMeshoptDecoder must be called before loading compressed files');
           } else {
             // Assumes that the extension is optional and that fallback buffer data is present
@@ -623,7 +671,8 @@ class GLTFMeshoptCompression extends GLTFExtension {
         var result = Uint8List(count * stride);
         var source = Uint8List.view(buffer, byteOffset, byteLength);
 
-        decoder.decodeGltfBuffer(result, count, stride, source, extensionDef.mode, extensionDef.filter);
+        decoder.decodeGltfBuffer(result, count, stride, source,
+            extensionDef.mode, extensionDef.filter);
         return result;
       } else {
         return null;
@@ -672,12 +721,15 @@ class GLTFBinaryExtension extends GLTFExtension {
       chunkIndex += 4;
 
       if (chunkType == binaryExtensionChunksTypes["JSON"]) {
-        var contentArray = Uint8List.view(data, binaryExtensionHeaderLength + chunkIndex, chunkLength);
+        var contentArray = Uint8List.view(
+            data, binaryExtensionHeaderLength + chunkIndex, chunkLength);
         content = LoaderUtils.decodeText(contentArray);
       } else if (chunkType == binaryExtensionChunksTypes["BIN"]) {
         var byteOffset = binaryExtensionHeaderLength + chunkIndex;
 
-        body = Uint8List.view(data).sublist(byteOffset, byteOffset + chunkLength).buffer;
+        body = Uint8List.view(data)
+            .sublist(byteOffset, byteOffset + chunkLength)
+            .buffer;
       }
 
       // Clients must ignore chunks with unknown types.
@@ -718,24 +770,29 @@ class GLTFDracoMeshCompressionExtension extends GLTFExtension {
     var attributeTypeMap = {};
 
     gltfAttributeMap.forEach((attributeName, value) {
-      var threeAttributeName = webGlAttributes[attributeName] ?? attributeName.toLowerCase();
+      var threeAttributeName =
+          webGlAttributes[attributeName] ?? attributeName.toLowerCase();
 
       threeAttributeMap[threeAttributeName] = gltfAttributeMap[attributeName];
     });
 
     primitive["attributes"].forEach((attributeName, value) {
-      var threeAttributeName = webGlAttributes[attributeName] ?? attributeName.toLowerCase();
+      var threeAttributeName =
+          webGlAttributes[attributeName] ?? attributeName.toLowerCase();
 
       if (gltfAttributeMap[attributeName] != null) {
-        var accessorDef = json["accessors"][primitive["attributes"][attributeName]];
+        var accessorDef =
+            json["accessors"][primitive["attributes"][attributeName]];
         var componentType = webGlComponentTypes[accessorDef["componentType"]];
 
         attributeTypeMap[threeAttributeName] = componentType;
-        attributeNormalizedMap[threeAttributeName] = accessorDef["normalized"] == true;
+        attributeNormalizedMap[threeAttributeName] =
+            accessorDef["normalized"] == true;
       }
     });
 
-    final bufferView = await parser.getDependency('bufferView', bufferViewIndex);
+    final bufferView =
+        await parser.getDependency('bufferView', bufferViewIndex);
 
     var completer = Completer<dynamic>();
 
@@ -778,7 +835,8 @@ class GLTFTextureTransformExtension extends GLTFExtension {
     }
 
     if (transform.texCoord != null) {
-      print('THREE.GLTFLoader: Custom UV sets in $name extension not yet supported.');
+      print(
+          'THREE.GLTFLoader: Custom UV sets in $name extension not yet supported.');
     }
 
     texture.needsUpdate = true;
@@ -822,36 +880,41 @@ class GLTFMaterialsPbrSpecularGlossinessExtension extends GLTFExtension {
   }
 
   extendParams(materialParams, materialDef, parser) async {
-    var pbrSpecularGlossiness = materialDef.extensions[name];
+    var pbrSpecularGlossiness = materialDef["extensions"][name];
 
-    materialParams.color = Color(1.0, 1.0, 1.0);
-    materialParams.opacity = 1.0;
+    materialParams["color"] = Color(1.0, 1.0, 1.0);
+    materialParams["opacity"] = 1.0;
 
     List<Future> pending = [];
 
-    if (pbrSpecularGlossiness.diffuseFactor is List) {
-      var array = pbrSpecularGlossiness.diffuseFactor;
+    if (pbrSpecularGlossiness["diffuseFactor"] is List) {
+      var array = pbrSpecularGlossiness["diffuseFactor"];
 
-      materialParams.color.fromArray(array);
-      materialParams.opacity = array[3];
+      materialParams["color"].fromArray(array);
+      materialParams["opacity"] = array[3];
     }
 
-    if (pbrSpecularGlossiness.diffuseTexture != null) {
-      pending.add(parser.assignTexture(materialParams, 'map', pbrSpecularGlossiness.diffuseTexture, sRGBEncoding));
+    if (pbrSpecularGlossiness["diffuseTexture"] != null) {
+      pending.add(parser.assignTexture(materialParams, 'map',
+          pbrSpecularGlossiness["diffuseTexture"], sRGBEncoding));
     }
 
-    materialParams.emissive = Color(0.0, 0.0, 0.0);
-    materialParams.glossiness = pbrSpecularGlossiness.glossinessFactor ?? 1.0;
-    materialParams.specular = Color(1.0, 1.0, 1.0);
+    materialParams["emissive"] = Color(0.0, 0.0, 0.0);
+    materialParams["glossiness"] =
+        pbrSpecularGlossiness["glossinessFactor"] ?? 1.0;
+    materialParams["specular"] = Color(1.0, 1.0, 1.0);
 
-    if (pbrSpecularGlossiness.specularFactor is List) {
-      materialParams.specular.fromArray(pbrSpecularGlossiness.specularFactor);
+    if (pbrSpecularGlossiness["specularFactor"] is List) {
+      materialParams["specular"]
+          .fromArray(pbrSpecularGlossiness["specularFactor"]);
     }
 
-    if (pbrSpecularGlossiness.specularGlossinessTexture != null) {
-      var specGlossMapDef = pbrSpecularGlossiness.specularGlossinessTexture;
-      pending.add(parser.assignTexture(materialParams, 'glossinessMap', specGlossMapDef));
-      pending.add(parser.assignTexture(materialParams, 'specularMap', specGlossMapDef, sRGBEncoding));
+    if (pbrSpecularGlossiness["specularGlossinessTexture"] != null) {
+      var specGlossMapDef = pbrSpecularGlossiness["specularGlossinessTexture"];
+      pending.add(parser.assignTexture(
+          materialParams, 'glossinessMap', specGlossMapDef));
+      pending.add(parser.assignTexture(
+          materialParams, 'specularMap', specGlossMapDef, sRGBEncoding));
     }
 
     return Future.wait(pending);
@@ -861,41 +924,43 @@ class GLTFMaterialsPbrSpecularGlossinessExtension extends GLTFExtension {
     var material = GLTFMeshStandardSGMaterial(materialParams);
     material.fog = true;
 
-    material.color = materialParams.color;
+    material.color = materialParams["color"];
 
-    material.map = materialParams.map;
+    material.map = materialParams["map"];
 
     material.lightMap = null;
     material.lightMapIntensity = 1.0;
 
-    material.aoMap = materialParams.aoMap;
+    material.aoMap = materialParams["aoMap"];
     material.aoMapIntensity = 1.0;
 
-    material.emissive = materialParams.emissive;
+    material.emissive = materialParams["emissive"];
     material.emissiveIntensity = 1.0;
-    material.emissiveMap = materialParams.emissiveMap;
+    material.emissiveMap = materialParams["emissiveMap"];
 
-    material.bumpMap = materialParams.bumpMap;
+    material.bumpMap = materialParams["bumpMap"];
     material.bumpScale = 1;
 
-    material.normalMap = materialParams.normalMap;
+    material.normalMap = materialParams["normalMap"];
     material.normalMapType = TangentSpaceNormalMap;
 
-    if (materialParams.normalScale) material.normalScale = materialParams.normalScale;
+    if (materialParams["normalScale"] != null) {
+      material.normalScale = materialParams["normalScale"];
+    }
 
     material.displacementMap = null;
     material.displacementScale = 1;
     material.displacementBias = 0;
 
-    material.specularMap = materialParams.specularMap;
-    material.specular = materialParams.specular;
+    material.specularMap = materialParams["specularMap"];
+    material.specular = materialParams["specular"];
 
-    material.glossinessMap = materialParams.glossinessMap;
-    material.glossiness = materialParams.glossiness;
+    material.glossinessMap = materialParams["glossinessMap"];
+    material.glossiness = materialParams["glossiness"];
 
     material.alphaMap = null;
 
-    material.envMap = materialParams.envMap;
+    material.envMap = materialParams["envMap"];
     material.envMapIntensity = 1.0;
 
     return material;
