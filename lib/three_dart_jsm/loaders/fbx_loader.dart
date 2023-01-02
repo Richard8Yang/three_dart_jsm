@@ -712,17 +712,19 @@ class FBXTreeParser {
     modelMap.forEach((key, model) {
       try {
         var modelNode = modelNodes[model.id];
-        scope.setLookAtProperties(model, modelNode);
+        if (modelNode != null) {
+          scope.setLookAtProperties(model, modelNode);
 
-        var parentConnections = connections[model.id]["parents"];
+          var parentConnections = connections[model.id]["parents"];
 
-        parentConnections.forEach((connection) {
-          var parent = modelMap[connection["ID"]];
-          if (parent != null) parent.add(model);
-        });
+          parentConnections.forEach((connection) {
+            var parent = modelMap[connection["ID"]];
+            if (parent != null) parent.add(model);
+          });
 
-        if (model.parent == null) {
-          sceneGraph.add(model);
+          if (model.parent == null) {
+            sceneGraph.add(model);
+          }
         }
       } catch (e) {
         print("Can't find model by id ${model.id}, error=$e");
@@ -813,8 +815,8 @@ class FBXTreeParser {
     var bone;
 
     relationships["parents"].forEach((parent) {
-      for (var id in skeletons.keys) {
-        var skeleton = skeletons[id];
+      for (var key in skeletons.keys) {
+        var skeleton = skeletons[key];
 
         skeleton["rawBones"].asMap().forEach((i, rawBone) {
           if (rawBone["ID"] == parent["ID"]) {
