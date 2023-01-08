@@ -20,9 +20,11 @@ dependencies:
   # flutter_webgpu:
   #   path: ../../flutter_webgpu
 
-# dependency_overrides:
-#   three_dart:
-#     path: ../../three_dart
+dependency_overrides:
+  three_dart:
+    git:
+      url: https://github.com/Richard8Yang/three_dart.git
+      ref: main-ext
 
 dev_dependencies:
   flutter_test:
