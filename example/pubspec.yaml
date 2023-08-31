@@ -41,7 +41,9 @@ dependencies:
 
 dependency_overrides:
   three_dart:
-    path: ../../three_dart
+    git:
+      url: https://github.com/Richard8Yang/three_dart.git
+      ref: main-ext
 
 dev_dependencies:
   flutter_test:
