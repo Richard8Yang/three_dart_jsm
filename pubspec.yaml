@@ -28,7 +28,7 @@ dependency_overrides:
   flutter_gl:
     git:
       url: https://github.com/Richard8Yang/flutter_gl.git
-      ref: with-video-player
+      ref: main
       path: flutter_gl
 
 dev_dependencies:
